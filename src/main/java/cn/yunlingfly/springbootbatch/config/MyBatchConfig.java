@@ -36,8 +36,6 @@ public class MyBatchConfig {
      *
      * @param dataSource
      * @param transactionManager
-     * @return
-     * @throws Exception
      */
     @Bean
     public JobRepository myJobRepository(DataSource dataSource, PlatformTransactionManager transactionManager) throws Exception {
@@ -54,8 +52,6 @@ public class MyBatchConfig {
      *
      * @param dataSource
      * @param transactionManager
-     * @return
-     * @throws Exception
      */
     @Bean
     public SimpleJobLauncher myJobLauncher(DataSource dataSource, PlatformTransactionManager transactionManager) throws Exception {
@@ -70,7 +66,6 @@ public class MyBatchConfig {
      *
      * @param jobs
      * @param myStep
-     * @return
      */
     @Bean
     public Job myJob(JobBuilderFactory jobs, Step myStep) {
@@ -85,7 +80,6 @@ public class MyBatchConfig {
     /**
      * 注册job监听器
      *
-     * @return
      */
     @Bean
     public MyJobListener myJobListener() {
@@ -95,11 +89,9 @@ public class MyBatchConfig {
     /**
      * ItemReader定义：读取文件数据+entirty实体类映射
      *
-     * @return
      */
     @Bean
     public ItemReader<BlogInfo> reader() {
-        System.out.println("开始读取csv");
         // 使用FlatFileItemReader去读cvs文件，一行即一条数据
         FlatFileItemReader<BlogInfo> reader = new FlatFileItemReader<>();
         // 设置文件处在路径
@@ -125,7 +117,6 @@ public class MyBatchConfig {
     /**
      * 注册ItemProcessor: 处理数据+校验数据
      *
-     * @return
      */
     @Bean
     public ItemProcessor<BlogInfo, BlogInfo> processor() {
@@ -138,7 +129,6 @@ public class MyBatchConfig {
     /**
      * 注册校验器
      *
-     * @return
      */
     @Bean
     public MyBeanValidator myBeanValidator() {
@@ -149,7 +139,6 @@ public class MyBatchConfig {
      * ItemWriter定义：指定datasource，设置批量插入sql语句，写入数据库
      *
      * @param dataSource
-     * @return
      */
     @Bean
     public ItemWriter<BlogInfo> writer(DataSource dataSource) {
@@ -175,13 +164,11 @@ public class MyBatchConfig {
      * @param reader
      * @param writer
      * @param processor
-     * @return
      */
 
     @Bean
     public Step myStep(StepBuilderFactory stepBuilderFactory, ItemReader<BlogInfo> reader,
                        ItemWriter<BlogInfo> writer, ItemProcessor<BlogInfo, BlogInfo> processor) {
-        System.out.println("到myStep了");
         return stepBuilderFactory
                 .get("myStep")
                 .<BlogInfo, BlogInfo>chunk(65000) // Chunk的机制(即每次读取一条数据，再处理一条数据，累积到一定数量后再一次性交给writer进行写入操作)

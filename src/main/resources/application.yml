@@ -11,8 +11,8 @@ spring:
       enabled: false
     #    table-prefix: my-batc
     jdbc:
-      # 总是帮我们生成batch框架使用到的数据库表，记录Job相关信息
-      initialize-schema: never
+      # 总是帮我们生成batch框架使用到的数据库表，记录Job相关信息 选项 always/never
+      initialize-schema: always
   autoconfigure:
     exclude: com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
   datasource:

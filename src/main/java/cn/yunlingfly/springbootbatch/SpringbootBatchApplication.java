@@ -5,6 +5,10 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * @author yunlingfly
+ * @date 2022/9/27
+ */
 @SpringBootApplication
 @EnableBatchProcessing
 @MapperScan(value = {"cn.yunlingfly.springbootbatch.**.mapper*"})

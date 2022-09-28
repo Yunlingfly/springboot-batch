@@ -50,11 +50,13 @@ public class TestController {
         System.out.println("导入完成");
     }
 
+    /**
+     * 静态文件导入测试
+     */
     @GetMapping("/testJob")
     public void testJob() throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
         //    后置参数：使用JobParameters中绑定参数 addLong  addString 等方法
         JobParameters jobParameters = new JobParametersBuilder().toJobParameters();
         jobLauncher.run(myJob, jobParameters);
-
     }
 }
