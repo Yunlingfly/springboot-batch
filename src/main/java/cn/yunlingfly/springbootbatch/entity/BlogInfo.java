@@ -1,5 +1,6 @@
 package cn.yunlingfly.springbootbatch.entity;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -10,6 +11,7 @@ import lombok.Data;
 @Data
 @TableName("blog_info")
 public class BlogInfo {
+    @TableId
     private String id;
     private String blogAuthor;
     private String blogUrl;
