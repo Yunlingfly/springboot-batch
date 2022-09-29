@@ -11,12 +11,9 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -62,20 +59,6 @@ public class TestController {
         JobParameters jobParameters = new JobParametersBuilder().toJobParameters();
 
         jobLauncher.run(myJob, jobParameters);
-    }
-
-    /**
-     * 假装这是一个POST接收文件
-     */
-    @GetMapping("/testDynJob")
-    public void testDynJob() {
-        ClassPathResource classPathResource = new ClassPathResource("static/blog_info.csv");
-        try {
-            File file = classPathResource.getFile();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("导入完成");
+        System.out.println("插入完成");
     }
 }

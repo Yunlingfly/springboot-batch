@@ -1,6 +1,5 @@
 package cn.yunlingfly.springbootbatch.config;
 
-
 import cn.yunlingfly.springbootbatch.entity.BlogInfo;
 import org.springframework.batch.item.validator.ValidatingItemProcessor;
 import org.springframework.batch.item.validator.ValidationException;

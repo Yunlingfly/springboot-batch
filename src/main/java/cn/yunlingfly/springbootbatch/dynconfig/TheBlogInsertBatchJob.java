@@ -1,5 +1,6 @@
 package cn.yunlingfly.springbootbatch.dynconfig;
 
+import cn.yunlingfly.springbootbatch.config.MyItemProcessor;
 import cn.yunlingfly.springbootbatch.config.MyReadListener;
 import cn.yunlingfly.springbootbatch.config.MyWriteListener;
 import cn.yunlingfly.springbootbatch.entity.BlogInfo;
@@ -18,6 +19,7 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.validator.Validator;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.sql.DataSource;
@@ -30,58 +32,54 @@ import javax.sql.DataSource;
 public class TheBlogInsertBatchJob {
     private int type;
     private JobBuilderFactory jobBuilderFactory;
+    private StepBuilderFactory stepBuilderFactory;
     private DataSource dataSource;
     private ItemReader<BlogInfo> jobReader;
     private ItemWriter<BlogInfo> jobWriter;
+    private ItemProcessor<BlogInfo, BlogInfo> processor;
+    private Step myCsvStep;
+    private Validator validator;
 
-    public TheBlogInsertBatchJob(int type, JobBuilderFactory jobBuilderFactory, DataSource dataSource) {
+    public TheBlogInsertBatchJob(int type, JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory, DataSource dataSource, Validator validator) {
         this.type = type;
         this.jobBuilderFactory = jobBuilderFactory;
+        this.stepBuilderFactory = stepBuilderFactory;
         this.dataSource = dataSource;
+        this.validator = validator;
     }
 
     public Job getTheBlogInsertBatchJob() {
+        // 1 csv
         if (this.type == 1) {
             this.jobReader = this.setReaderCsv();
             this.jobWriter = this.writerCommon();
-        } else if (this.type == 2) {
-
+            this.processor = this.processor();
+            this.myCsvStep = this.getMyCsvStep();
+            return jobBuilderFactory.get("theBlogInsertBatchJobByCsv")
+                    .incrementer(new RunIdIncrementer())
+                    .flow(this.myCsvStep)
+                    .end()
+//                .listener(myJobListener())
+                    .build();
+        }
+        // 2 json
+        else if (this.type == 2) {
+            System.out.println("文件未在定义的类型中");
+            return null;
         } else {
             System.out.println("文件未在定义的类型中");
             return null;
         }
     }
 
-    public Job theBlogInsertBatchJob(JobBuilderFactory jobs, Step myStep) {
-        if (type == 1) {
-            return jobs.get("theBlogInsertBatchJob1")
-                    .incrementer(new RunIdIncrementer())
-                    .flow(myStep)
-                    .end()
-//                .listener(myJobListener())
-                    .build();
-        } else if (type == 2) {
-            return jobs.get("theBlogInsertBatchJob2")
-                    .incrementer(new RunIdIncrementer())
-                    .flow(myStep)
-                    .end()
-//                .listener(myJobListener())
-                    .build();
-        } else {
-            System.out.println("文件未在定义的类型中");
-            return null;
-        }
-    }
-
-    public Step myStep(StepBuilderFactory stepBuilderFactory, ItemReader<BlogInfo> reader,
-                       ItemWriter<BlogInfo> writer, ItemProcessor<BlogInfo, BlogInfo> processor) {
-        return stepBuilderFactory
-                .get("myStep")
+    private Step getMyCsvStep() {
+        return this.stepBuilderFactory
+                .get("myCsvStep")
                 .<BlogInfo, BlogInfo>chunk(65000) // Chunk的机制(即每次读取一条数据，再处理一条数据，累积到一定数量后再一次性交给writer进行写入操作)
-                .reader(reader).faultTolerant().retryLimit(3).retry(Exception.class).skip(Exception.class).skipLimit(2)
+                .reader(this.jobReader).faultTolerant().retryLimit(3).retry(Exception.class).skip(Exception.class).skipLimit(2)
                 .listener(new MyReadListener())
-                .processor(processor)
-                .writer(writer).faultTolerant().skip(Exception.class).skipLimit(2)
+                .processor(this.processor)
+                .writer(this.jobWriter).faultTolerant().skip(Exception.class).skipLimit(2)
                 .listener(new MyWriteListener())
                 .build();
     }
@@ -119,5 +117,12 @@ public class TheBlogInsertBatchJob {
         writer.setSql(sql);
         writer.setDataSource(this.dataSource);
         return writer;
+    }
+
+    private ItemProcessor<BlogInfo, BlogInfo> processor() {
+        MyItemProcessor myItemProcessor = new MyItemProcessor();
+        // 设置校验器
+        myItemProcessor.setValidator(this.validator);
+        return myItemProcessor;
     }
 }

@@ -1,6 +1,5 @@
 package cn.yunlingfly.springbootbatch.config;
 
-
 import org.springframework.batch.item.validator.ValidationException;
 import org.springframework.batch.item.validator.Validator;
 import org.springframework.beans.factory.InitializingBean;
